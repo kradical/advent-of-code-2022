@@ -1,6 +1,18 @@
-use std::{fs::File, io::{BufReader, BufRead}, collections::HashSet};
+use std::{
+    collections::HashSet,
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
-fn main() {
+fn get_priority(c: char) -> u8 {
+    match c {
+        'A'..='Z' => c as u8 - 38,
+        'a'..='z' => c as u8 - 96,
+        _ => panic!("NOT ASCII"),
+    }
+}
+
+fn part_one() {
     let file = File::open("input.txt").unwrap();
     let reader = BufReader::new(file);
 
@@ -17,15 +29,47 @@ fn main() {
 
         // We know there will be 1 overlap (as per problem definition)
         let common = intersection.next().unwrap();
-
-        let priority = match *common {
-            'A'..='Z' => *common as u8 - 38,
-            'a'..='z' => *common as u8 - 96,
-            _ => panic!("NOT ASCII"),
-        };
-
-        total += priority as i32;
+        total += get_priority(*common) as i32;
     }
 
-    println!("{}", total);
+    println!("part 1: {}", total);
+}
+
+fn part_two() {
+    let file = File::open("input.txt").unwrap();
+    let reader = BufReader::new(file);
+
+    let mut total: i32 = 0;
+
+    let mut counter = 0;
+    let mut lines = ["".to_string(), "".to_string(), "".to_string()];
+    for line in reader.lines() {
+        let line_str = line.unwrap();
+        lines[counter] = line_str;
+
+        if counter == 2 {
+            let first = HashSet::<_>::from_iter(lines[0].chars());
+            let second = HashSet::<_>::from_iter(lines[1].chars());
+            let third = HashSet::<_>::from_iter(lines[2].chars());
+
+            // We know there will be 1 overlap (as per problem definition)
+            let common = first
+                .iter()
+                .filter(|c| second.contains(c) && third.contains(c))
+                .next()
+                .unwrap();
+
+            total += get_priority(*common) as i32;
+        }
+
+        counter += 1;
+        counter %= 3;
+    }
+
+    println!("part 2: {}", total);
+}
+
+fn main() {
+    part_one();
+    part_two();
 }
