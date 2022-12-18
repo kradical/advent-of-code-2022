@@ -13,9 +13,9 @@ impl FromStr for Choice {
 
     fn from_str(input: &str) -> Result<Choice, Self::Err> {
         match input {
-            "A" | "X" => Ok(Choice::Rock),
-            "B" | "Y" => Ok(Choice::Paper),
-            "C" | "Z" => Ok(Choice::Scissors),
+            "A" => Ok(Choice::Rock),
+            "B" => Ok(Choice::Paper),
+            "C" => Ok(Choice::Scissors),
             _ => Err(()),
         }
     }
@@ -25,6 +25,19 @@ enum GameResult {
     Loss = 0,
     Draw = 3,
     Win = 6,
+}
+
+impl FromStr for GameResult {
+  type Err = ();
+
+  fn from_str(input: &str) -> Result<GameResult, Self::Err> {
+      match input {
+          "X" => Ok(GameResult::Loss),
+          "Y" => Ok(GameResult::Draw),
+          "Z" => Ok(GameResult::Win),
+          _ => Err(()),
+      }
+  }
 }
 
 fn get_game_result(opponent: &Choice, me: &Choice) -> GameResult {
@@ -47,6 +60,26 @@ fn get_game_result(opponent: &Choice, me: &Choice) -> GameResult {
     }
 }
 
+fn get_move(opponent: &Choice, result: &GameResult) -> Choice {
+  match opponent {
+    Choice::Rock => match result {
+        GameResult::Draw => Choice::Rock,
+        GameResult::Win => Choice::Paper,
+        GameResult::Loss => Choice::Scissors,
+    },
+    Choice::Paper => match result {
+        GameResult::Loss => Choice::Rock,
+        GameResult::Draw => Choice::Paper,
+        GameResult::Win => Choice::Scissors,
+    },
+    Choice::Scissors => match result {
+        GameResult::Win => Choice::Rock,
+        GameResult::Loss => Choice::Paper,
+        GameResult::Draw => Choice::Scissors,
+    },
+}
+}
+
 fn get_round_points(opponent: Choice, me: Choice) -> i32 {
     let game_result = get_game_result(&opponent, &me);
 
@@ -66,8 +99,9 @@ fn main() {
         let me_str = split_line.next().unwrap();
 
         let opponent = Choice::from_str(opponent_str).unwrap();
-        let me = Choice::from_str(me_str).unwrap();
+        let game_result = GameResult::from_str(me_str).unwrap();
 
+        let me = get_move(&opponent, &game_result);
         total += get_round_points(opponent, me);
     }
 
