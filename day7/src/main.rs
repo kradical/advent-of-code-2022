@@ -86,6 +86,25 @@ fn part_one() {
     println!("Part 1: {}", cumulative_size);
 }
 
+fn part_two() {
+    let disk_space = 70_000_000;
+    let required_empty_space = 30_000_000;
+
+    let directory_sizes = get_directory_sizes();
+
+    let current_empty_space = disk_space - directory_sizes.get("/").unwrap();
+    let space_to_free = required_empty_space - current_empty_space;
+
+    let deleted_size = directory_sizes
+        .values()
+        .filter(|size| **size > space_to_free)
+        .min()
+        .unwrap();
+
+    println!("Part 2: {}", deleted_size);
+}
+
 fn main() {
     part_one();
+    part_two();
 }
