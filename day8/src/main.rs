@@ -70,7 +70,58 @@ fn part_one() {
 }
 
 fn part_two() {
-    println!("Part 2: ");
+    let forest = read_forest();
+
+    let Forest { columns, rows, .. } = forest;
+
+    let mut max_scenic_score = 0;
+    for i in 1..(rows - 1) {
+        for j in 1..(columns - 1) {
+            let current = forest.get(i, j);
+
+            let left_trees = (0..j).rev().map(|left| forest.get(i, left));
+            let right_trees = ((j + 1)..columns).map(|right| forest.get(i, right));
+            let up_trees = (0..i).rev().map(|up| forest.get(up, j));
+            let down_trees = ((i + 1)..rows).map(|down| forest.get(down, j));
+
+            let mut left_distance = 0;
+            for tree in left_trees {
+                left_distance += 1;
+                if tree >= current {
+                    break;
+                }
+            }
+
+            let mut right_distance = 0;
+            for tree in right_trees {
+                right_distance += 1;
+                if tree >= current {
+                    break;
+                }
+            }
+
+            let mut up_distance = 0;
+            for tree in up_trees {
+                up_distance += 1;
+                if tree >= current {
+                    break;
+                }
+            }
+
+            let mut down_distance = 0;
+            for tree in down_trees {
+                down_distance += 1;
+                if tree >= current {
+                    break;
+                }
+            }
+
+            let scenic_score = up_distance * left_distance * down_distance * right_distance;
+            max_scenic_score = std::cmp::max(max_scenic_score, scenic_score);
+        }
+    }
+
+    println!("Part 2: {}", max_scenic_score);
 }
 
 fn main() {
