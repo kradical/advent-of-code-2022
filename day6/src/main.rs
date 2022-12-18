@@ -5,32 +5,6 @@ use std::{
     io::{BufRead, BufReader},
 };
 
-fn part_one() {
-    let file = File::open("input.txt").unwrap();
-    let reader = BufReader::new(file);
-
-    let mut result = 0;
-    let mut buffer: VecDeque<char> = VecDeque::new();
-
-    for line in reader.lines() {
-        let line_str = line.unwrap();
-        for c in line_str.chars() {
-            result += 1;
-            buffer.push_front(c);
-
-            if buffer.len() > 4 {
-                buffer.pop_back();
-            }
-
-            if buffer.len() == 4 && has_unique_elements(&buffer) {
-                break;
-            }
-        }
-    }
-
-    println!("Part 1: {}", result);
-}
-
 fn has_unique_elements<T>(iter: T) -> bool
 where
     T: IntoIterator,
@@ -40,18 +14,34 @@ where
     iter.into_iter().all(move |x| uniq.insert(x))
 }
 
-fn part_two() {
-    let file = File::open("input.txt").unwrap();
-    let reader = BufReader::new(file);
+fn detect_start(count: usize, input: impl IntoIterator<Item=char>) -> i32 {
+    let mut result = 0;
+    let mut buffer: VecDeque<char> = VecDeque::new();
 
-    for line in reader.lines() {
-        let _line_str = line.unwrap();
+    for c in input {
+        result += 1;
+        buffer.push_front(c);
+
+        if buffer.len() > count {
+            buffer.pop_back();
+        }
+
+        if buffer.len() == count && has_unique_elements(&buffer) {
+            break;
+        }
     }
 
-    println!("Part 2:");
+    return result;
 }
 
 fn main() {
-    part_one();
-    part_two();
+    let file = File::open("input.txt").unwrap();
+    let reader = BufReader::new(file);
+    let line = reader.lines().take(1).next().unwrap().unwrap();
+
+    let p1_result = detect_start(4, line.chars());
+    println!("Part 1: {}", p1_result);
+
+    let p2_result = detect_start(14, line.chars());
+    println!("Part 2: {}", p2_result);
 }
